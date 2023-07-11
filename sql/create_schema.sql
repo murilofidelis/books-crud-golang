@@ -7,7 +7,7 @@ CREATE TABLE "dev_book".user (
 	name varchar(100) not null,
 	nick varchar(50) not null,
 	email varchar(100) not null, 
-	password varchar(45) not null, 
+	password varchar(255) not null, 
 	cretae_at timestamp default current_timestamp,
 	CONSTRAINT id_user_pk PRIMARY KEY (id)
 );

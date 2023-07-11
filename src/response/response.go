@@ -12,7 +12,9 @@ func Json(w http.ResponseWriter, statuCode int, data interface{}) {
 	w.WriteHeader(statuCode)
 
 	log.Print(data)
-
+	if data == nil {
+		return
+	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Fatal(err)
 	}

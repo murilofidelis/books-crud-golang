@@ -1,9 +1,12 @@
 package models
 
 import (
+	"api/src/security"
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/badoux/checkmail"
 )
 
 type User struct {
@@ -15,15 +18,17 @@ type User struct {
 	CreateAt time.Time `json:"createAt,omitempty"`
 }
 
-func (user *User) Validate() error {
-	user.format()
-	if err := user.checkValidate(); err != nil {
+func (user *User) Validate(step string) error {
+	if err := user.format(step); err != nil {
+		return err
+	}
+	if err := user.checkValidate(step); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (user *User) checkValidate() error {
+func (user *User) checkValidate(step string) error {
 	if user.Name == "" {
 		return errors.New("name is required.")
 	}
@@ -33,14 +38,25 @@ func (user *User) checkValidate() error {
 	if user.Email == "" {
 		return errors.New("email is required.")
 	}
-	if user.Password == "" {
+	if err := checkmail.ValidateFormat(user.Email); err != nil {
+		return errors.New("email invalid!")
+	}
+	if step == "create" && user.Password == "" {
 		return errors.New("password is required.")
 	}
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(step string) error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+	if step == "create" {
+		passworwithHash, err := security.Hash(user.Password)
+		if err != nil {
+			return err
+		}
+		user.Password = string(passworwithHash)
+	}
+	return nil
 }
