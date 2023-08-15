@@ -156,6 +156,15 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err)
 	}
+	userIdToken, err := security.ExtractUserId(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+	if userIdToken != userId {
+		response.Error(w, http.StatusForbidden, errors.New("UserId is diff"))
+		return
+	}
 	dataBase, err := db.Connect()
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, err)
