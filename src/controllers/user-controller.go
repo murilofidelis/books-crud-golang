@@ -5,7 +5,9 @@ import (
 	"api/src/models"
 	"api/src/repository"
 	"api/src/response"
+	"api/src/security"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -119,6 +121,16 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusBadRequest, err)
 		return
 	}
+	userIdToken, err := security.ExtractUserId(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+	if user.ID != 0 && userIdToken != user.ID {
+		response.Error(w, http.StatusForbidden, errors.New("UserId is diff"))
+		return
+	}
+
 	if err = user.Validate("update"); err != nil {
 		response.Error(w, http.StatusBadRequest, err)
 		return

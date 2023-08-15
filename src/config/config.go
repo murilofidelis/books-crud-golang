@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	JdbcUrl = ""
-	Port    = 0
+	JdbcUrl   = ""
+	Port      = 0
+	SecretKey []byte
 )
 
 func LoadConfig() {
@@ -32,4 +33,5 @@ func LoadConfig() {
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_SCHEMA"),
 	)
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }
